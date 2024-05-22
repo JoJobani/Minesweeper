@@ -4,6 +4,7 @@ const MINE = '*'
 const FLAG = 'F'
 const EMPTY = ' '
 
+var firstClick = true
 var gBoard
 var gLevel = {
     SIZE: 4,
@@ -18,9 +19,20 @@ var gGame = {
 
 function onInit() {
     gBoard = buildBoard()
-    setMinesNegsCount(gBoard)
     renderBoard(gBoard)
-    console.table(gBoard)
+    firstClick = true
+    gGame.shownCount = 0
+    gGame.markedCount = 0
+    gGame.secsPassed = 0
+    gGame.isOn = true
+}
+
+function chooseLevel(elBtn) {
+    gLevel.SIZE = parseInt(elBtn.dataset.size)
+    if (gLevel.SIZE === 4) gLevel.MINES = 2
+    if (gLevel.SIZE === 8) gLevel.MINES = 14
+    if (gLevel.SIZE === 12) gLevel.MINES = 32
+    onInit()
 }
 
 function buildBoard() {
@@ -36,29 +48,40 @@ function buildBoard() {
             }
         }
     }
+    return board
+}
+
+function placeMines(board, firstI, firstJ) {
     var minesPlaced = 0
     while (minesPlaced < gLevel.MINES) {
         var i = getRandomInt(0, gLevel.SIZE)
         var j = getRandomInt(0, gLevel.SIZE)
-        if (!board[i][j].isMine) {
+        if (i !== firstI && j !== firstJ && !board[i][j].isMine) {
             board[i][j].isMine = true
             minesPlaced++
         }
     }
-    return board
 }
 
 function renderBoard(board) {
     var boardContainer = document.querySelector('.board')
     boardContainer.innerHTML = ''
+    boardContainer.style.gridTemplateColumns = `repeat(${gLevel.SIZE}, 50px)`
     for (var i = 0; i < board.length; i++) {
         for (var j = 0; j < board[0].length; j++) {
             var elCell = document.createElement('div')
             elCell.classList.add('cell')
             elCell.dataset.i = i
             elCell.dataset.j = j
-            elCell.setAttribute('onclick', `onCellClicked(${i},${j})`)
-
+            //left click functionality
+            elCell.addEventListener('click', function (event) {
+                onCellClicked(parseInt(event.target.dataset.i), parseInt(event.target.dataset.j))
+            })
+            //right click functionality
+            elCell.addEventListener('contextmenu', function (event) {
+                event.preventDefault()
+                onCellMarked(parseInt(event.target.dataset.i), parseInt(event.target.dataset.j))
+            })
             if (board[i][j].isShown) {
                 elCell.classList.add('shown')
                 if (board[i][j].isMine) {
@@ -103,18 +126,70 @@ function countNegs(cellI, cellJ, board) {
 
 
 function onCellClicked(i, j) {
+    if (!gGame.isOn) return
+    if (gBoard[i][j].isMarked) return
+    if (firstClick) {
+        firstClick = false
+        placeMines(gBoard, i, j)
+        setMinesNegsCount(gBoard)
+    }
     gBoard[i][j].isShown = true
+    gGame.shownCount++
+    if (gBoard[i][j].isMine) {
+        for (var a = 0; a < gBoard.length; a++) {
+            for (var b = 0; b < gBoard[0].length; b++) {
+                if (gBoard[a][b].isMine) {
+                    gBoard[a][b].isShown = true
+                }
+            }
+        }
+        gGame.isOn = false
+    }
+    expandShown(gBoard, i, j)
+    checkGameOver()
     renderBoard(gBoard)
 }
 
-function onCellMarked(elCell) {
-
+function onCellMarked(i, j) {
+    if (!gGame.isOn) return
+    gBoard[i][j].isMarked = !gBoard[i][j].isMarked
+    if (gBoard[i][j].isMarked) {
+        gGame.markedCount++
+    } else {
+        gGame.markedCount--
+    }
+    renderBoard(gBoard)
 }
 
 function checkGameOver() {
-
+    var isWon = false
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[0].length; j++) {
+            if (gGame.shownCount === (gLevel.SIZE ** 2 - gLevel.MINES)) {
+                isWon = true
+            }
+        }
+    }
+    if (isWon) {
+        gGame.isOn = false
+        alert("victory!")
+    }
 }
 
-function expandShown(board, elCell, i, j) {
-
+function expandShown(board, i, j) {
+    if (board[i][j].minesAroundCount !== 0) return
+    for (var a = i - 1; a <= i + 1; a++) {
+        if (a < 0 || a >= board.length) continue
+        for (var b = j - 1; b <= j + 1; b++) {
+            if (b < 0 || b >= board[0].length) continue
+            if (a === i && b === j) continue
+            if (!board[a][b].isShown && !board[a][b].isMarked && !board[a][b].minesAroundCount) {
+                if (!board[a][b].isShown) gGame.shownCount++
+                board[a][b].isShown = true
+                if (board[a][b].minesAroundCount === 0) {
+                    expandShown(board,a,b)
+                }
+            }
+        }
+    }
 }

@@ -1,7 +1,6 @@
 .board {
     display: grid;
-    grid-template-columns: repeat(4, 50px);
-    gap: 5px;
+    border: 5px;
 }
 
 .cell {

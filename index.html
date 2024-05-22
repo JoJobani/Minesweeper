@@ -4,13 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MineSweeper</title>
+    <title>Minesweeper</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body onload="onInit()">
     <h1>MineSweeper!</h1>
     <div class="board"></div>
+    <div class="level">
+        <h3>choose difficulty</h3>
+        <div class="diff-btn">
+            <button data-size="4" onclick="chooseLevel(this)">EASY</button>
+            <button data-size="8" onclick="chooseLevel(this)">MEDIUM</button>
+            <button data-size="12" onclick="chooseLevel(this)">HARD</button>
+        </div>
+    </div>
+    <h3>by: Yehonatan Menashe</h3>
     <script src="js/main.js"></script>
     <script src="js/utils.js"></script>
 </body>
