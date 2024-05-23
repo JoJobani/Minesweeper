@@ -10,9 +10,11 @@
 
 <body onload="onInit()">
     <h1>MineSweeper!</h1>
+    <h2 class="lives"></h2>
+    <button class="restart" onclick="onInit()">restart</button>
     <div class="board"></div>
     <div class="level">
-        <h3>choose difficulty</h3>
+        <h3>choose difficulty:</h3>
         <div class="diff-btn">
             <button data-size="4" onclick="chooseLevel(this)">EASY</button>
             <button data-size="8" onclick="chooseLevel(this)">MEDIUM</button>

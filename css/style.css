@@ -1,5 +1,6 @@
 .board {
     display: grid;
+    margin-left: 203px;
     border: 5px;
 }
 
@@ -21,4 +22,13 @@
 
 .cell.flag {
     background-color: rgb(211, 81, 200);
+}
+
+.restart{
+    display: block;
+    margin: auto;
+}
+
+.diff-btn{
+    margin-left: 100px;
 }
