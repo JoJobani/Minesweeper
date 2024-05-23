@@ -8,7 +8,10 @@ const LOSE = '🤯'
 const WIN = '😎'
 
 var firstClick = true
+var gStartTime
+var gTimer
 var gBoard
+
 var gLevel = {
     SIZE: 4,
     MINES: 2
@@ -142,16 +145,18 @@ function onCellClicked(i, j) {
         firstClick = false
         placeMines(gBoard, i, j)
         setMinesNegsCount(gBoard)
+        startTime()
     }
     //normal handling
+    if (!gBoard[i][j].isMine && !gBoard[i][j].isShown) gGame.shownCount++
     gBoard[i][j].isShown = true
-    if (!gBoard[i][j].isMine) gGame.shownCount++
     //mine handling
     if (gBoard[i][j].isMine) {
         gGame.lives--
         if (!gGame.lives) {
             var elRestart = document.querySelector('.restart')
             elRestart.innerText = LOSE
+            stopTimer()
             for (var a = 0; a < gBoard.length; a++) {
                 for (var b = 0; b < gBoard[0].length; b++) {
                     if (gBoard[a][b].isMine) {
@@ -193,6 +198,7 @@ function checkGameOver() {
         gGame.isOn = false
         var elRestart = document.querySelector('.restart')
         elRestart.innerText = WIN
+        stopTimer()
     }
 }
 
@@ -213,4 +219,20 @@ function expandShown(board, i, j) {
             }
         }
     }
+}
+
+function startTime() {
+    gStartTime = new Date()
+    gTimer = setInterval(updateTimer, 1000)
+}
+
+function stopTimer() {
+    clearInterval(gTimer)
+}
+
+function updateTimer() {
+    var elapsedTime = new Date() - gStartTime
+    var seconds = Math.floor(elapsedTime / 1000) % 60
+    var minutes = Math.floor(elapsedTime / 60000)
+    document.querySelector(".time").innerHTML = `Time: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
 }
