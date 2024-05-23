@@ -25,11 +25,16 @@
     background-color: rgb(211, 81, 200);
 }
 
-.restart{
+.restart {
     scale: 3;
     margin: 30px;
 }
 
-.diff-btn{
+.diff-btn {
     margin-left: 100px;
+}
+
+.dark-mode {
+    background-color: black;
+    color: white;
 }
